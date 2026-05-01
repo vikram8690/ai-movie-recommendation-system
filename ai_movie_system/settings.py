@@ -132,8 +132,12 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 _static_dir = BASE_DIR / 'static'
 STATICFILES_DIRS = [_static_dir] if _static_dir.exists() else []
 
-# CompressedStaticFilesStorage works WITHOUT a pre-built manifest (safe on Render)
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# Use simple storage — no manifest needed; WhiteNoise serves from STATIC_ROOT after collectstatic
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+# WhiteNoise: also serve files from STATICFILES_DIRS directly (so CSS/JS works even before collectstatic)
+WHITENOISE_ROOT = None   # don't override root, let middleware handle it
+WHITENOISE_AUTOREFRESH = True   # recheck files on each request (fine for free-tier)
 
 # ------------------------------------------------------------------
 # Media files (user-uploaded content)

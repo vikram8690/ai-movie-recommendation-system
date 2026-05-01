@@ -132,7 +132,7 @@ def preprocess(text: str) -> str:
 
 def train():
     print("=" * 60)
-    print("  AI Movie System — Sentiment Model Trainer")
+    print("  AI Movie System - Sentiment Model Trainer")
     print("=" * 60)
 
     # Prepare data
@@ -163,7 +163,6 @@ def train():
         max_iter=1000,
         C=1.0,
         solver='lbfgs',
-        multi_class='multinomial',
         random_state=42,
     )
     model.fit(X_train_vec, y_train)
@@ -186,8 +185,8 @@ def train():
     joblib.dump(vectorizer, vec_path)
     joblib.dump(model,      model_path)
 
-    print(f"\n  Vectorizer saved → {vec_path}")
-    print(f"  Model saved      → {model_path}")
+    print(f"\n  Vectorizer saved -> {vec_path}")
+    print(f"  Model saved      -> {model_path}")
     print("\n  Training complete! The Django app will now use this model.")
     print("=" * 60)
 

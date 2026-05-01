@@ -26,12 +26,17 @@ def home(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
 
-    # Top-6 movies by review count
-    trending = (
-        Movie.objects
-        .annotate(review_count=Count('review'))
-        .order_by('-review_count')[:6]
-    )
+    try:
+        trending = (
+            Movie.objects
+            .annotate(review_count=Count('review'))
+            .order_by('-review_count')[:6]
+        )
+        # Force evaluation so any DB error surfaces here with a clear message
+        trending = list(trending)
+    except Exception:
+        trending = []
+
     return render(request, 'home.html', {'trending': trending})
 
 

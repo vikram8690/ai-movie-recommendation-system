@@ -4,11 +4,13 @@ services:
     env: python
     region: oregon
     plan: free
-    buildCommand: |
-      pip install -r requirements.txt
-      python manage.py collectstatic --no-input
-      python manage.py migrate
-      python ml/train_sentiment.py
+    pythonVersion: "3.11.0"
+    buildCommand: >-
+      pip install -r requirements.txt &&
+      python manage.py collectstatic --no-input &&
+      python manage.py migrate &&
+      python ml/train_sentiment.py &&
+      python manage.py seed_movies
     startCommand: gunicorn ai_movie_system.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: SECRET_KEY

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Add Movie — AI Movie{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="d-flex align-items-center mb-4 gap-3">
+      <a href="{% url 'movie_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <h1 class="fw-bold mb-0">
+        <i class="fas fa-plus-circle text-gold me-2"></i>Add New Movie
+      </h1>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="fas fa-film me-2"></i>Movie Information</div>
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Movie Title *</label>
+              {{ form.title }}
+              {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Genre *</label>
+              {{ form.genre }}
+              {% if form.genre.errors %}<div class="text-danger small">{{ form.genre.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Release Year *</label>
+              {{ form.release_year }}
+              {% if form.release_year.errors %}<div class="text-danger small">{{ form.release_year.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Director *</label>
+              {{ form.director }}
+              {% if form.director.errors %}<div class="text-danger small">{{ form.director.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Actors <small class="text-muted">(comma-separated)</small></label>
+              {{ form.actors }}
+              {% if form.actors.errors %}<div class="text-danger small">{{ form.actors.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description *</label>
+              {{ form.description }}
+              {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors|join:', ' }}</div>{% endif %}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Movie Poster <small class="text-muted">(optional)</small></label>
+              {{ form.poster }}
+              <small class="text-muted d-block mt-1">Recommended: 300×450 px JPG or PNG</small>
+              {% if form.poster.errors %}<div class="text-danger small">{{ form.poster.errors|join:', ' }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-gold px-4">
+              <i class="fas fa-save me-2"></i>Save Movie
+            </button>
+            <a href="{% url 'movie_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

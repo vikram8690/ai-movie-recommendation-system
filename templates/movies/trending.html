@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Trending Movies — AI Movie{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <h1 class="fw-bold mb-0">
+    <i class="fas fa-fire text-gold me-2"></i>Trending Movies
+  </h1>
+</div>
+<p class="text-muted mb-4">Movies with the most reviews from our community.</p>
+
+{% if movies %}
+<div class="row g-4">
+  {% for movie in movies %}
+  <div class="col-xl-2 col-lg-3 col-md-4 col-6">
+    <div class="card movie-card h-100 position-relative">
+      <!-- Rank badge -->
+      <div class="position-absolute top-0 start-0 m-2 z-1">
+        <span class="badge rounded-circle fw-bold"
+              style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+                     background:{% if forloop.counter <= 3 %}var(--accent-gold){% else %}rgba(0,0,0,.6){% endif %};
+                     color:{% if forloop.counter <= 3 %}#000{% else %}#fff{% endif %};">
+          {{ forloop.counter }}
+        </span>
+      </div>
+      <div class="movie-poster-wrapper">
+        <img src="{{ movie.get_poster_url }}"
+             class="card-img-top"
+             alt="{{ movie.title }}"
+             loading="lazy"
+             onerror="this.src='https://placehold.co/300x450/1a1a2e/f5c518?text={{ movie.title|urlencode }}'">
+      </div>
+      <div class="card-body p-2">
+        <div class="fw-bold small mb-1">{{ movie.title|truncatechars:22 }}</div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="badge-genre" style="font-size:.65rem;">{{ movie.genre }}</span>
+          <small class="text-gold"><i class="fas fa-star"></i> {{ movie.average_rating }}</small>
+        </div>
+        <small class="text-muted d-block mt-1">
+          <i class="fas fa-comment me-1"></i>{{ movie.review_count }} review{{ movie.review_count|pluralize }}
+        </small>
+      </div>
+      <div class="card-footer border-0 bg-transparent p-2">
+        <a href="{% url 'movie_detail' movie.pk %}" class="btn btn-gold btn-sm w-100">View</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+  <i class="fas fa-fire fa-3x text-muted mb-3 d-block"></i>
+  <h4 class="text-muted">No trending movies yet</h4>
+  <p class="text-muted">Be the first to review some movies!</p>
+  <a href="{% url 'movie_list' %}" class="btn btn-gold">Browse Movies</a>
+</div>
+{% endif %}
+{% endblock %}

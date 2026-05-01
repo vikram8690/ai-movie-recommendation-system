@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block title %}Movies — AI Movie{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h1 class="fw-bold mb-0">
+    <i class="fas fa-film text-gold me-2"></i>Movies
+  </h1>
+  {% if user.is_superuser or user.userprofile.role == 'admin' %}
+  <a href="{% url 'movie_add' %}" class="btn btn-gold">
+    <i class="fas fa-plus me-1"></i>Add Movie
+  </a>
+  {% endif %}
+</div>
+
+<!-- SEARCH & FILTER CARD -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-lg-4 col-md-6">
+        <label class="form-label small">Search</label>
+        <div class="input-group">
+          <span class="input-group-text" style="background:var(--bg-secondary);border-color:var(--border-color);">
+            <i class="fas fa-search text-muted"></i>
+          </span>
+          <input type="text" name="q" class="form-control" placeholder="Title, director, actor..."
+                 value="{{ query }}">
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3">
+        <label class="form-label small">Genre</label>
+        <select name="genre" class="form-select">
+          <option value="">All Genres</option>
+          {% for val, label in genres %}
+            <option value="{{ val }}" {% if val == selected_genre %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-lg-2 col-md-3">
+        <label class="form-label small">Year</label>
+        <select name="year" class="form-select">
+          <option value="">Any Year</option>
+          {% for y in years %}
+            <option value="{{ y }}" {% if y|stringformat:"s" == selected_year %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-lg-2 col-md-3">
+        <label class="form-label small">Min Rating</label>
+        <select name="min_rating" class="form-select">
+          <option value="">Any Rating</option>
+          <option value="1" {% if selected_rating == '1' %}selected{% endif %}>1+ ★</option>
+          <option value="2" {% if selected_rating == '2' %}selected{% endif %}>2+ ★★</option>
+          <option value="3" {% if selected_rating == '3' %}selected{% endif %}>3+ ★★★</option>
+          <option value="4" {% if selected_rating == '4' %}selected{% endif %}>4+ ★★★★</option>
+        </select>
+      </div>
+      <div class="col-lg-2 col-md-3">
+        <label class="form-label small">Sort By</label>
+        <select name="sort" class="form-select">
+          <option value="-created_at" {% if selected_sort == '-created_at' %}selected{% endif %}>Newest</option>
+          <option value="title"        {% if selected_sort == 'title' %}selected{% endif %}>A–Z</option>
+          <option value="-avg_rating"  {% if selected_sort == '-avg_rating' %}selected{% endif %}>Top Rated</option>
+          <option value="-review_count"{% if selected_sort == '-review_count' %}selected{% endif %}>Most Reviewed</option>
+        </select>
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-gold px-4">
+          <i class="fas fa-filter me-1"></i>Apply
+        </button>
+        <a href="{% url 'movie_list' %}" class="btn btn-outline-secondary px-4">
+          <i class="fas fa-times me-1"></i>Clear
+        </a>
+        {% if query or selected_genre or selected_year or selected_rating %}
+          <span class="badge bg-warning text-dark align-self-center">
+            Filters active
+          </span>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- RESULTS COUNT -->
+<p class="text-muted small mb-3">
+  Showing <strong class="text-gold">{{ page_obj.paginator.count }}</strong> movie{{ page_obj.paginator.count|pluralize }}
+  {% if query %}for "<em>{{ query }}</em>"{% endif %}
+</p>
+
+<!-- MOVIE GRID -->
+{% if page_obj %}
+<div class="row g-4">
+  {% for movie in page_obj %}
+  <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+    <div class="card movie-card h-100">
+      <div class="movie-poster-wrapper">
+        <img src="{{ movie.get_poster_url }}"
+             class="card-img-top"
+             alt="{{ movie.title }}"
+             loading="lazy"
+             onerror="this.src='https://placehold.co/300x450/1a1a2e/f5c518?text={{ movie.title|urlencode }}'">
+      </div>
+      <div class="card-body p-2 d-flex flex-column">
+        <div class="card-title fw-bold mb-1" title="{{ movie.title }}">
+          {{ movie.title|truncatechars:25 }}
+        </div>
+        <div class="d-flex align-items-center justify-content-between mb-1">
+          <span class="badge-genre">{{ movie.genre }}</span>
+          <small class="text-muted">{{ movie.release_year }}</small>
+        </div>
+        <div class="d-flex align-items-center gap-1 mt-auto">
+          {% with avg=movie.average_rating %}
+            {% for i in "12345" %}
+              <i class="fas fa-star" style="font-size:.7rem;color:{% if forloop.counter <= avg %}var(--accent-gold){% else %}var(--text-muted){% endif %};"></i>
+            {% endfor %}
+            <small class="text-muted ms-1">({{ movie.review_count }})</small>
+          {% endwith %}
+        </div>
+      </div>
+      <div class="card-footer border-0 bg-transparent p-2 d-flex gap-1">
+        <a href="{% url 'movie_detail' movie.pk %}" class="btn btn-gold btn-sm flex-grow-1">View</a>
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'add_to_watchlist' movie.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-secondary btn-sm watchlist-btn"
+                  data-bs-toggle="tooltip" title="Add to Watchlist">
+            <i class="fas fa-bookmark"></i>
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- PAGINATION -->
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="mt-4 d-flex justify-content-center">
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_genre %}genre={{ selected_genre }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}{% if selected_rating %}min_rating={{ selected_rating }}&{% endif %}page={{ page_obj.previous_page_number }}">
+          <i class="fas fa-chevron-left"></i>
+        </a>
+      </li>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if num == page_obj.number %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+          <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_genre %}genre={{ selected_genre }}&{% endif %}page={{ num }}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if selected_genre %}genre={{ selected_genre }}&{% endif %}page={{ page_obj.next_page_number }}">
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+  <i class="fas fa-film fa-3x text-muted mb-3 d-block"></i>
+  <h4 class="text-muted">No movies found</h4>
+  <p class="text-muted">Try adjusting your search or filters.</p>
+  <a href="{% url 'movie_list' %}" class="btn btn-outline-gold">Clear Filters</a>
+</div>
+{% endif %}
+{% endblock %}

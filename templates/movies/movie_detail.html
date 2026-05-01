@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block title %}{{ movie.title }} — AI Movie{% endblock %}
+
+{% block content %}
+
+<!-- MOVIE HERO -->
+<div class="movie-hero" style="margin:-2rem -2rem 2rem;padding:3rem 2rem;">
+  <div class="container-fluid">
+    <div class="row g-4 align-items-start">
+      <!-- Poster -->
+      <div class="col-md-auto text-center">
+        <img src="{{ movie.get_poster_url }}"
+             class="movie-poster-detail"
+             alt="{{ movie.title }}"
+             onerror="this.src='https://placehold.co/300x450/1a1a2e/f5c518?text={{ movie.title|urlencode }}'">
+      </div>
+
+      <!-- Info -->
+      <div class="col-md">
+        <div class="movie-meta mb-2">
+          <span class="badge-genre me-2">{{ movie.genre }}</span>
+          <span><i class="fas fa-calendar me-1"></i>{{ movie.release_year }}</span>
+        </div>
+        <h1 class="movie-title-detail mb-3">{{ movie.title }}</h1>
+
+        <div class="movie-meta mb-3">
+          <span><i class="fas fa-video me-1"></i><strong>Director:</strong> {{ movie.director }}</span>
+          <br>
+          <span><i class="fas fa-users me-1"></i><strong>Cast:</strong> {{ movie.actors }}</span>
+        </div>
+
+        <p class="text-muted mb-4" style="max-width:600px;">{{ movie.description }}</p>
+
+        <!-- Average Rating -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="text-center">
+            <div class="avg-rating">{{ avg_rating }}</div>
+            <div class="stars">
+              {% for i in star_range %}
+                <i class="fas fa-star{% if i > avg_rating %}-half-alt{% endif %}"
+                   style="color:{% if i <= avg_rating %}var(--accent-gold){% else %}var(--text-muted){% endif %}"></i>
+              {% endfor %}
+            </div>
+            <small class="text-muted">{{ movie.review_count }} review{{ movie.review_count|pluralize }}</small>
+          </div>
+
+          <!-- Sentiment mini chart -->
+          {% if movie.review_count %}
+          <div style="min-width:120px;">
+            <div class="d-flex justify-content-between small mb-1">
+              <span class="text-success"><i class="fas fa-smile me-1"></i>{{ pos }}</span>
+              <span class="text-danger"><i class="fas fa-frown me-1"></i>{{ neg }}</span>
+              <span class="text-warning"><i class="fas fa-meh me-1"></i>{{ neu }}</span>
+            </div>
+            <div class="progress" style="height:6px;">
+              <div class="progress-bar bg-success" style="width:{% widthratio pos movie.review_count 100 %}%"></div>
+              <div class="progress-bar bg-danger"  style="width:{% widthratio neg movie.review_count 100 %}%"></div>
+              <div class="progress-bar bg-warning" style="width:{% widthratio neu movie.review_count 100 %}%"></div>
+            </div>
+            <small class="text-muted">Sentiment</small>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Action buttons -->
+        <div class="d-flex gap-2 flex-wrap">
+          {% if user.is_authenticated %}
+            <a href="{% url 'add_review' movie.pk %}" class="btn btn-gold">
+              <i class="fas fa-star me-1"></i>
+              {% if user_review %}Edit Review{% else %}Write Review{% endif %}
+            </a>
+            <form method="post" action="{% if in_watchlist %}{% url 'remove_from_watchlist' movie.pk %}{% else %}{% url 'add_to_watchlist' movie.pk %}{% endif %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn {% if in_watchlist %}btn-outline-danger{% else %}btn-outline-gold{% endif %} watchlist-btn">
+                <i class="fas fa-bookmark me-1"></i>
+                {% if in_watchlist %}Remove from Watchlist{% else %}Add to Watchlist{% endif %}
+              </button>
+            </form>
+          {% else %}
+            <a href="{% url 'login' %}" class="btn btn-gold">
+              <i class="fas fa-sign-in-alt me-1"></i>Login to Review
+            </a>
+          {% endif %}
+
+          {% if user.is_superuser or user.userprofile.role == 'admin' %}
+          <a href="{% url 'movie_edit' movie.pk %}" class="btn btn-outline-secondary">
+            <i class="fas fa-edit me-1"></i>Edit
+          </a>
+          <a href="{% url 'movie_delete' movie.pk %}" class="btn btn-outline-danger"
+             data-confirm="Delete '{{ movie.title }}'? This cannot be undone.">
+            <i class="fas fa-trash me-1"></i>Delete
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- REVIEWS SECTION -->
+  <div class="col-lg-8">
+    <h4 class="fw-bold mb-3">
+      <i class="fas fa-comments text-gold me-2"></i>
+      Reviews <small class="text-muted fw-normal">({{ reviews|length }})</small>
+    </h4>
+
+    {% if user_review %}
+    <div class="review-card mb-3" style="border-color:var(--accent-gold);">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <span class="reviewer-name">
+            <i class="fas fa-user-circle text-gold me-1"></i>
+            {{ user_review.user.username }} <em class="text-muted small">(You)</em>
+          </span>
+          <div class="mt-1">
+            {% for i in star_range %}
+              <i class="fas fa-star" style="font-size:.9rem;color:{% if i <= user_review.rating %}var(--accent-gold){% else %}var(--text-muted){% endif %};"></i>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="text-end">
+          <span class="badge-sentiment-{{ user_review.sentiment }}">{{ user_review.sentiment|capfirst }}</span>
+          <div class="review-date">{{ user_review.created_at|date:"M d, Y" }}</div>
+        </div>
+      </div>
+      <p class="review-text">{{ user_review.review_text }}</p>
+      <a href="{% url 'add_review' movie.pk %}" class="btn btn-outline-gold btn-sm">
+        <i class="fas fa-edit me-1"></i>Edit Review
+      </a>
+    </div>
+    {% endif %}
+
+    {% for review in reviews %}
+      {% if review.user != user %}
+      <div class="review-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <span class="reviewer-name">
+              <i class="fas fa-user-circle me-1" style="color:var(--accent-blue)"></i>
+              {{ review.user.username }}
+            </span>
+            <div class="mt-1">
+              {% for i in star_range %}
+                <i class="fas fa-star" style="font-size:.9rem;color:{% if i <= review.rating %}var(--accent-gold){% else %}var(--text-muted){% endif %};"></i>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="text-end">
+            <span class="badge-sentiment-{{ review.sentiment }}">
+              {% if review.sentiment == 'positive' %}<i class="fas fa-smile me-1"></i>
+              {% elif review.sentiment == 'negative' %}<i class="fas fa-frown me-1"></i>
+              {% else %}<i class="fas fa-meh me-1"></i>{% endif %}
+              {{ review.sentiment|capfirst }}
+            </span>
+            <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+          </div>
+        </div>
+        <p class="review-text">{{ review.review_text }}</p>
+      </div>
+      {% endif %}
+    {% empty %}
+      {% if not user_review %}
+      <div class="text-center py-4 text-muted">
+        <i class="fas fa-comments fa-2x mb-2 d-block"></i>
+        No reviews yet. Be the first to review this movie!
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- SIMILAR MOVIES -->
+  <div class="col-lg-4">
+    <h4 class="fw-bold mb-3">
+      <i class="fas fa-th-large text-gold me-2"></i>Similar Movies
+    </h4>
+    {% for m in similar %}
+    <div class="d-flex gap-3 mb-3 p-2 rounded" style="background:var(--bg-card);border:1px solid var(--border-color);">
+      <img src="{{ m.get_poster_url }}" alt="{{ m.title }}"
+           style="width:60px;height:80px;object-fit:cover;border-radius:6px;"
+           onerror="this.src='https://placehold.co/60x80/1a1a2e/f5c518?text=?'">
+      <div class="flex-grow-1">
+        <div class="fw-bold small">{{ m.title|truncatechars:30 }}</div>
+        <div class="d-flex justify-content-between mt-1">
+          <span class="badge-genre" style="font-size:.65rem;">{{ m.genre }}</span>
+          <small class="text-gold"><i class="fas fa-star"></i> {{ m.average_rating }}</small>
+        </div>
+        <a href="{% url 'movie_detail' m.pk %}" class="btn btn-gold btn-sm mt-2 py-0 px-2" style="font-size:.75rem;">View</a>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-muted small">No similar movies found.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

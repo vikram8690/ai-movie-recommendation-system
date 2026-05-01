@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}My Reviews — AI Movie{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h1 class="fw-bold mb-0">
+    <i class="fas fa-history text-gold me-2"></i>My Review History
+  </h1>
+  <a href="{% url 'export_reviews_csv' %}" class="btn btn-gold">
+    <i class="fas fa-download me-2"></i>Export CSV
+  </a>
+</div>
+
+{% if reviews %}
+<!-- Summary strip -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card py-3">
+      <div class="stat-value">{{ reviews|length }}</div>
+      <div class="stat-label">Total Reviews</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card py-3">
+      <div class="stat-value text-success">
+        {% for r in reviews %}{% if r.sentiment == 'positive' %}{% with count=forloop.counter %}{% endwith %}{% endif %}{% endfor %}
+        {{ reviews|length }}
+      </div>
+      <div class="stat-label">Movies Reviewed</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card py-3">
+      <a href="{% url 'export_reviews_csv' %}" class="btn btn-outline-gold w-100">
+        <i class="fas fa-file-csv me-2"></i>Download CSV
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <i class="fas fa-list me-2"></i>All Reviews
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Movie</th>
+            <th>Rating</th>
+            <th>Sentiment</th>
+            <th>Review</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for review in reviews %}
+          <tr>
+            <td>
+              <a href="{% url 'movie_detail' review.movie.pk %}" class="text-gold text-decoration-none fw-bold">
+                {{ review.movie.title }}
+              </a>
+              <div><small class="badge-genre" style="font-size:.65rem;">{{ review.movie.genre }}</small></div>
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                {% for i in "12345" %}
+                  <i class="fas fa-star" style="font-size:.8rem;color:{% if forloop.counter <= review.rating %}var(--accent-gold){% else %}var(--text-muted){% endif %};"></i>
+                {% endfor %}
+              </div>
+              <small class="text-muted">{{ review.rating }}/5</small>
+            </td>
+            <td>
+              <span class="badge-sentiment-{{ review.sentiment }}">
+                {% if review.sentiment == 'positive' %}<i class="fas fa-smile me-1"></i>
+                {% elif review.sentiment == 'negative' %}<i class="fas fa-frown me-1"></i>
+                {% else %}<i class="fas fa-meh me-1"></i>{% endif %}
+                {{ review.sentiment|capfirst }}
+              </span>
+            </td>
+            <td style="max-width:250px;">
+              <small class="text-muted">{{ review.review_text|truncatechars:80 }}</small>
+            </td>
+            <td><small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small></td>
+            <td>
+              <a href="{% url 'add_review' review.movie.pk %}" class="btn btn-outline-gold btn-sm">
+                <i class="fas fa-edit"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<div class="text-center py-5">
+  <i class="fas fa-star fa-3x text-muted mb-3 d-block"></i>
+  <h4 class="text-muted">No reviews yet</h4>
+  <p class="text-muted">Start reviewing movies to build your history.</p>
+  <a href="{% url 'movie_list' %}" class="btn btn-gold">
+    <i class="fas fa-film me-2"></i>Browse Movies
+  </a>
+</div>
+{% endif %}
+{% endblock %}

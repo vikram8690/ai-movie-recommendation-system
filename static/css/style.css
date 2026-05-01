@@ -1,0 +1,453 @@
+/* ===================================================================
+   AI Movie Recommendation System — Custom Stylesheet
+   Theme: Dark Cinema with Gold Accents
+   =================================================================== */
+
+/* --- CSS Variables ------------------------------------------------ */
+:root {
+  --bg-primary:    #0a0a1a;
+  --bg-secondary:  #12122a;
+  --bg-card:       #1a1a35;
+  --bg-card-hover: #22224a;
+  --accent-gold:   #f5c518;
+  --accent-blue:   #4a9eff;
+  --text-primary:  #e8e8f0;
+  --text-muted:    #888899;
+  --border-color:  #2a2a4a;
+  --positive:      #28a745;
+  --negative:      #dc3545;
+  --neutral:       #ffc107;
+  --sidebar-width: 240px;
+}
+
+/* --- Base --------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background-color: var(--bg-primary);
+  color:            var(--text-primary);
+  font-family:      'Segoe UI', system-ui, -apple-system, sans-serif;
+  min-height:       100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar            { width: 6px; }
+::-webkit-scrollbar-track      { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb      { background: var(--accent-gold); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover{ background: #e0b000; }
+
+/* --- Navbar ------------------------------------------------------- */
+.navbar {
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%) !important;
+  border-bottom: 2px solid var(--accent-gold);
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(245, 197, 24, 0.15);
+}
+.navbar-brand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent-gold) !important;
+  letter-spacing: 0.5px;
+}
+.navbar-brand span { color: var(--text-primary); }
+.navbar-nav .nav-link {
+  color: var(--text-primary) !important;
+  font-weight: 500;
+  transition: color 0.2s;
+  padding: 0.5rem 1rem !important;
+}
+.navbar-nav .nav-link:hover { color: var(--accent-gold) !important; }
+.navbar-nav .nav-link.active { color: var(--accent-gold) !important; }
+
+/* --- Sidebar ------------------------------------------------------ */
+.sidebar {
+  width:      var(--sidebar-width);
+  min-height: calc(100vh - 60px);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding-top: 1.5rem;
+  position:   fixed;
+  top:        60px;
+  left:       0;
+  z-index:    100;
+  transition: transform 0.3s ease;
+}
+.sidebar-link {
+  display:     flex;
+  align-items: center;
+  gap:         0.75rem;
+  padding:     0.65rem 1.25rem;
+  color:       var(--text-primary);
+  text-decoration: none;
+  border-radius: 0 25px 25px 0;
+  margin-right: 1rem;
+  margin-bottom: 0.2rem;
+  font-weight: 500;
+  transition:  all 0.2s;
+}
+.sidebar-link:hover, .sidebar-link.active {
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #e0a800 100%);
+  color:      #000 !important;
+  transform:  translateX(4px);
+}
+.sidebar-link i { width: 20px; text-align: center; }
+.sidebar-section {
+  font-size:   0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color:       var(--text-muted);
+  padding:     0.75rem 1.25rem 0.25rem;
+  text-transform: uppercase;
+}
+.main-content {
+  margin-left: var(--sidebar-width);
+  padding:     2rem;
+  min-height:  calc(100vh - 60px);
+}
+
+/* --- Cards -------------------------------------------------------- */
+.card {
+  background:    var(--bg-card);
+  border:        1px solid var(--border-color);
+  border-radius: 12px;
+  color:         var(--text-primary);
+  transition:    transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  transform:  translateY(-4px);
+  box-shadow: 0 12px 40px rgba(245, 197, 24, 0.12);
+}
+.card-header {
+  background:    rgba(245, 197, 24, 0.08);
+  border-bottom: 1px solid var(--border-color);
+  font-weight:   700;
+  color:         var(--accent-gold);
+}
+
+/* --- Movie Card --------------------------------------------------- */
+.movie-card { overflow: hidden; height: 100%; }
+.movie-card .card-img-top {
+  height:      320px;
+  object-fit:  cover;
+  transition:  transform 0.3s;
+}
+.movie-card:hover .card-img-top { transform: scale(1.05); }
+.movie-card .card-body { display: flex; flex-direction: column; }
+.movie-card .card-title {
+  font-weight: 700;
+  font-size:   1rem;
+  color:       var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+.movie-poster-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+.movie-poster-wrapper::after {
+  content:    '';
+  position:   absolute;
+  bottom:     0; left: 0; right: 0;
+  height:     80px;
+  background: linear-gradient(transparent, var(--bg-card));
+}
+
+/* --- Star Rating -------------------------------------------------- */
+.stars { display: inline-flex; gap: 2px; }
+.star  { color: var(--text-muted); font-size: 1rem; }
+.star.filled { color: var(--accent-gold); }
+.avg-rating {
+  font-size:   1.8rem;
+  font-weight: 700;
+  color:       var(--accent-gold);
+}
+
+/* Star rating input */
+.star-rating-input { display: flex; flex-direction: row-reverse; gap: 4px; }
+.star-rating-input input[type="radio"] { display: none; }
+.star-rating-input label {
+  font-size:  2rem;
+  color:      var(--text-muted);
+  cursor:     pointer;
+  transition: color 0.15s;
+}
+.star-rating-input label:hover,
+.star-rating-input label:hover ~ label,
+.star-rating-input input:checked ~ label { color: var(--accent-gold); }
+
+/* --- Badges ------------------------------------------------------- */
+.badge-genre {
+  background: rgba(74, 158, 255, 0.2);
+  color:      var(--accent-blue);
+  border:     1px solid rgba(74, 158, 255, 0.3);
+  padding:    3px 10px;
+  border-radius: 20px;
+  font-size:  0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.badge-sentiment-positive {
+  background: rgba(40, 167, 69, 0.2);
+  color:      #5dd879;
+  border:     1px solid rgba(40, 167, 69, 0.4);
+  padding:    3px 10px;
+  border-radius: 20px;
+  font-size:  0.75rem;
+  font-weight: 600;
+}
+.badge-sentiment-negative {
+  background: rgba(220, 53, 69, 0.2);
+  color:      #ff6b7a;
+  border:     1px solid rgba(220, 53, 69, 0.4);
+  padding:    3px 10px;
+  border-radius: 20px;
+  font-size:  0.75rem;
+  font-weight: 600;
+}
+.badge-sentiment-neutral {
+  background: rgba(255, 193, 7, 0.2);
+  color:      var(--accent-gold);
+  border:     1px solid rgba(255, 193, 7, 0.4);
+  padding:    3px 10px;
+  border-radius: 20px;
+  font-size:  0.75rem;
+  font-weight: 600;
+}
+
+/* --- Buttons ------------------------------------------------------ */
+.btn-gold {
+  background:    var(--accent-gold);
+  color:         #000;
+  font-weight:   700;
+  border:        none;
+  border-radius: 8px;
+  transition:    all 0.2s;
+}
+.btn-gold:hover {
+  background:  #e0b000;
+  color:       #000;
+  transform:   translateY(-1px);
+  box-shadow:  0 6px 20px rgba(245, 197, 24, 0.3);
+}
+.btn-outline-gold {
+  color:         var(--accent-gold);
+  border:        1px solid var(--accent-gold);
+  background:    transparent;
+  font-weight:   600;
+  border-radius: 8px;
+  transition:    all 0.2s;
+}
+.btn-outline-gold:hover {
+  background:  var(--accent-gold);
+  color:       #000;
+}
+
+/* --- Stat Cards --------------------------------------------------- */
+.stat-card {
+  background:    linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-hover) 100%);
+  border:        1px solid var(--border-color);
+  border-radius: 16px;
+  padding:       1.5rem;
+  text-align:    center;
+  transition:    transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover {
+  transform:  translateY(-4px);
+  box-shadow: 0 12px 35px rgba(245, 197, 24, 0.15);
+}
+.stat-card .stat-icon {
+  width:         60px;
+  height:        60px;
+  border-radius: 50%;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  margin:        0 auto 1rem;
+  font-size:     1.5rem;
+}
+.stat-card .stat-value {
+  font-size:   2rem;
+  font-weight: 800;
+  color:       var(--accent-gold);
+  line-height: 1;
+}
+.stat-card .stat-label {
+  color:     var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+/* --- Forms -------------------------------------------------------- */
+.form-control, .form-select {
+  background:    var(--bg-card);
+  border:        1px solid var(--border-color);
+  color:         var(--text-primary);
+  border-radius: 8px;
+}
+.form-control:focus, .form-select:focus {
+  background:   var(--bg-card);
+  border-color: var(--accent-gold);
+  color:        var(--text-primary);
+  box-shadow:   0 0 0 3px rgba(245, 197, 24, 0.15);
+}
+.form-control::placeholder { color: var(--text-muted); }
+.form-label { color: var(--text-primary); font-weight: 600; }
+
+/* --- Tables ------------------------------------------------------- */
+.table {
+  color:        var(--text-primary);
+  border-color: var(--border-color);
+}
+.table thead th {
+  background:   var(--bg-secondary);
+  color:        var(--accent-gold);
+  border-color: var(--border-color);
+  font-weight:  700;
+}
+.table tbody tr { border-color: var(--border-color); }
+.table tbody tr:hover { background: rgba(245, 197, 24, 0.05); }
+.table td { border-color: var(--border-color); vertical-align: middle; }
+
+/* --- Alerts / Messages ------------------------------------------- */
+.alert {
+  border-radius: 10px;
+  border-left:   4px solid;
+  font-weight:   500;
+}
+.alert-success { border-left-color: var(--positive); background: rgba(40, 167, 69, 0.15); color: #8affaa; }
+.alert-danger  { border-left-color: var(--negative); background: rgba(220, 53, 69, 0.15);  color: #ff9aa5; }
+.alert-info    { border-left-color: var(--accent-blue); background: rgba(74, 158, 255, 0.15); color: #8ac4ff; }
+.alert-warning { border-left-color: var(--neutral); background: rgba(255, 193, 7, 0.15);   color: var(--accent-gold); }
+
+/* --- Hero Section ------------------------------------------------- */
+.hero-section {
+  background:  linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+  padding:     5rem 0;
+  text-align:  center;
+  border-bottom: 1px solid var(--border-color);
+  position:    relative;
+  overflow:    hidden;
+}
+.hero-section::before {
+  content:  '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 50% 50%, rgba(245, 197, 24, 0.05) 0%, transparent 60%);
+}
+.hero-title {
+  font-size:   3.5rem;
+  font-weight: 800;
+  color:       var(--text-primary);
+  line-height: 1.2;
+}
+.hero-title span { color: var(--accent-gold); }
+.hero-subtitle { color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto; }
+
+/* --- Movie Detail ------------------------------------------------- */
+.movie-hero {
+  background:  var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding:     3rem 0;
+}
+.movie-poster-detail {
+  width:         100%;
+  max-width:     300px;
+  border-radius: 12px;
+  box-shadow:    0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.movie-title-detail {
+  font-size:   2.5rem;
+  font-weight: 800;
+  color:       var(--text-primary);
+}
+.movie-meta { color: var(--text-muted); font-size: 0.9rem; }
+.movie-meta span { margin-right: 1rem; }
+
+/* --- Review Card -------------------------------------------------- */
+.review-card {
+  background:    var(--bg-secondary);
+  border:        1px solid var(--border-color);
+  border-radius: 12px;
+  padding:       1.25rem;
+  margin-bottom: 1rem;
+  transition:    border-color 0.2s;
+}
+.review-card:hover { border-color: var(--accent-gold); }
+.reviewer-name { font-weight: 700; color: var(--text-primary); }
+.review-date   { color: var(--text-muted); font-size: 0.8rem; }
+.review-text   { color: var(--text-primary); margin: 0.75rem 0 0; line-height: 1.6; }
+
+/* --- Progress bars ------------------------------------------------ */
+.progress {
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  height: 8px;
+}
+.progress-bar { border-radius: 20px; }
+
+/* --- Pagination --------------------------------------------------- */
+.pagination .page-link {
+  background:   var(--bg-card);
+  border-color: var(--border-color);
+  color:        var(--text-primary);
+}
+.pagination .page-link:hover {
+  background: var(--accent-gold);
+  color:      #000;
+  border-color: var(--accent-gold);
+}
+.pagination .page-item.active .page-link {
+  background:   var(--accent-gold);
+  border-color: var(--accent-gold);
+  color:        #000;
+}
+
+/* --- Footer ------------------------------------------------------- */
+footer {
+  background:    var(--bg-secondary);
+  border-top:    1px solid var(--border-color);
+  padding:       2rem 0;
+  text-align:    center;
+  color:         var(--text-muted);
+  margin-left:   var(--sidebar-width);
+}
+footer a { color: var(--accent-gold); text-decoration: none; }
+
+/* --- Animations --------------------------------------------------- */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 197, 24, 0.4); }
+  50%       { box-shadow: 0 0 0 10px rgba(245, 197, 24, 0); }
+}
+.pulse-gold { animation: pulse-gold 2s infinite; }
+
+/* --- Responsive --------------------------------------------------- */
+@media (max-width: 992px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.show { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  footer { margin-left: 0; }
+  .hero-title { font-size: 2.2rem; }
+}
+
+@media (max-width: 576px) {
+  .main-content { padding: 1rem; }
+  .hero-title { font-size: 1.8rem; }
+  .stat-card { margin-bottom: 1rem; }
+}
+
+/* --- Utilities ----------------------------------------------------- */
+.text-gold    { color: var(--accent-gold) !important; }
+.bg-dark-card { background: var(--bg-card) !important; }
+.border-gold  { border-color: var(--accent-gold) !important; }
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

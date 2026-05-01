@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}AI Movie System{% endblock %}</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Font Awesome 6 -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <!-- Custom CSS -->
+  {% load static %}
+  <link href="{% static 'css/style.css' %}" rel="stylesheet"/>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ===================== NAVBAR ===================== -->
+<nav class="navbar navbar-expand-lg fixed-top">
+  <div class="container-fluid px-4">
+    <!-- Brand -->
+    <a class="navbar-brand" href="{% url 'home' %}">
+      <i class="fas fa-film me-2"></i>AI<span>Movie</span>
+    </a>
+
+    <!-- Mobile toggler + sidebar toggle -->
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-outline-secondary d-lg-none" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+        <i class="fas fa-ellipsis-v text-light"></i>
+      </button>
+    </div>
+
+    <div class="collapse navbar-collapse" id="navContent">
+      <!-- Search bar -->
+      <form class="d-flex ms-auto me-3" action="{% url 'movie_list' %}" method="get">
+        <div class="input-group" style="width:280px;">
+          <input class="form-control form-control-sm" type="search" name="q"
+                 placeholder="Search movies..." value="{{ request.GET.q }}">
+          <button class="btn btn-gold btn-sm" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+
+      <!-- Right nav -->
+      <ul class="navbar-nav gap-1">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard' %}">
+              <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+            </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              <i class="fas fa-user-circle me-1"></i>{{ user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end"
+                style="background:var(--bg-card);border-color:var(--border-color);">
+              <li>
+                <a class="dropdown-item text-light" href="{% url 'review_history' %}">
+                  <i class="fas fa-history me-2"></i>My Reviews
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item text-light" href="{% url 'watchlist' %}">
+                  <i class="fas fa-bookmark me-2"></i>Watchlist
+                </a>
+              </li>
+              {% if user.is_superuser or user.userprofile.role == 'admin' %}
+              <li><hr class="dropdown-divider border-secondary"></li>
+              <li>
+                <a class="dropdown-item text-warning" href="{% url 'admin_dashboard' %}">
+                  <i class="fas fa-cog me-2"></i>Admin Panel
+                </a>
+              </li>
+              {% endif %}
+              <li><hr class="dropdown-divider border-secondary"></li>
+              <li>
+                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                  <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+              </li>
+            </ul>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">
+              <i class="fas fa-sign-in-alt me-1"></i>Login
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-gold btn-sm ms-2" href="{% url 'register' %}">
+              <i class="fas fa-user-plus me-1"></i>Register
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== SIDEBAR ===================== -->
+<div id="sidebar" class="sidebar" style="margin-top:56px;">
+  {% if user.is_authenticated %}
+    <!-- User info -->
+    <div class="text-center px-3 mb-3">
+      <div class="rounded-circle bg-dark d-inline-flex align-items-center justify-content-center"
+           style="width:55px;height:55px;border:2px solid var(--accent-gold);">
+        {% if user.userprofile.profile_image %}
+          <img src="{{ user.userprofile.profile_image.url }}" class="rounded-circle w-100 h-100" style="object-fit:cover;">
+        {% else %}
+          <i class="fas fa-user fa-xl text-gold"></i>
+        {% endif %}
+      </div>
+      <div class="mt-2 text-truncate">
+        <div style="font-weight:700;color:var(--text-primary);">{{ user.get_full_name|default:user.username }}</div>
+        <small class="text-muted">{{ user.userprofile.role|capfirst }}</small>
+      </div>
+    </div>
+    <hr style="border-color:var(--border-color);margin:0.5rem 1rem;">
+  {% endif %}
+
+  <div class="sidebar-section">Navigation</div>
+  <a href="{% url 'home' %}"           class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+    <i class="fas fa-home"></i> Home
+  </a>
+  <a href="{% url 'movie_list' %}"     class="sidebar-link {% if 'movie_list' in request.resolver_match.url_name %}active{% endif %}">
+    <i class="fas fa-film"></i> Movies
+  </a>
+  <a href="{% url 'trending_movies' %}" class="sidebar-link {% if request.resolver_match.url_name == 'trending_movies' %}active{% endif %}">
+    <i class="fas fa-fire"></i> Trending
+  </a>
+
+  {% if user.is_authenticated %}
+  <div class="sidebar-section">My Account</div>
+  <a href="{% url 'dashboard' %}"        class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+    <i class="fas fa-tachometer-alt"></i> Dashboard
+  </a>
+  <a href="{% url 'recommendations' %}"  class="sidebar-link {% if request.resolver_match.url_name == 'recommendations' %}active{% endif %}">
+    <i class="fas fa-magic"></i> For You
+  </a>
+  <a href="{% url 'watchlist' %}"        class="sidebar-link {% if request.resolver_match.url_name == 'watchlist' %}active{% endif %}">
+    <i class="fas fa-bookmark"></i> Watchlist
+  </a>
+  <a href="{% url 'review_history' %}"   class="sidebar-link {% if request.resolver_match.url_name == 'review_history' %}active{% endif %}">
+    <i class="fas fa-history"></i> My Reviews
+  </a>
+  <a href="{% url 'export_reviews_csv' %}" class="sidebar-link">
+    <i class="fas fa-download"></i> Export CSV
+  </a>
+
+  {% if user.is_superuser or user.userprofile.role == 'admin' %}
+  <div class="sidebar-section">Admin</div>
+  <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+    <i class="fas fa-chart-bar"></i> Admin Panel
+  </a>
+  <a href="{% url 'movie_add' %}" class="sidebar-link">
+    <i class="fas fa-plus-circle"></i> Add Movie
+  </a>
+  <a href="/admin/" class="sidebar-link" target="_blank">
+    <i class="fas fa-cog"></i> Django Admin
+  </a>
+  {% endif %}
+
+  {% endif %}
+</div>
+
+<!-- ===================== MAIN CONTENT ===================== -->
+<div class="main-content" style="margin-top:56px;">
+  <!-- Flash messages -->
+  {% if messages %}
+    <div class="mb-3">
+      {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+          {{ msg|safe }}
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <p class="mb-1">
+    <i class="fas fa-film text-gold"></i>
+    <strong class="text-gold">AI Movie</strong> Recommendation &amp; Sentiment System
+  </p>
+  <small>Built with Django · scikit-learn · Bootstrap 5 &nbsp;|&nbsp;
+    <a href="https://github.com/vikram8690" target="_blank">
+      <i class="fab fa-github"></i> vikram8690
+    </a>
+  </small>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}AI Movie — Home{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<div class="hero-section" style="margin:-2rem -2rem 2rem;padding:5rem 2rem;">
+  <div class="container">
+    <h1 class="hero-title mb-3">
+      Discover Movies with<br><span>AI-Powered</span> Intelligence
+    </h1>
+    <p class="hero-subtitle mb-4">
+      Get personalised recommendations, instant sentiment analysis on your reviews,
+      and explore thousands of movies rated by our community.
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="{% url 'movie_list' %}" class="btn btn-gold btn-lg px-4">
+        <i class="fas fa-film me-2"></i>Browse Movies
+      </a>
+      <a href="{% url 'register' %}" class="btn btn-outline-gold btn-lg px-4">
+        <i class="fas fa-user-plus me-2"></i>Join Free
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES STRIP -->
+<div class="container mb-5">
+  <div class="row g-4 text-center">
+    <div class="col-md-3">
+      <div class="stat-card fade-in-up">
+        <div class="stat-icon mx-auto" style="background:rgba(245,197,24,0.15);">
+          <i class="fas fa-brain text-gold"></i>
+        </div>
+        <div class="fw-bold text-gold">AI Sentiment</div>
+        <small class="text-muted">Every review is analysed automatically</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card fade-in-up" style="animation-delay:.1s">
+        <div class="stat-icon mx-auto" style="background:rgba(74,158,255,0.15);">
+          <i class="fas fa-magic" style="color:var(--accent-blue)"></i>
+        </div>
+        <div class="fw-bold" style="color:var(--accent-blue)">Smart Recs</div>
+        <small class="text-muted">Personalised to your taste</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card fade-in-up" style="animation-delay:.2s">
+        <div class="stat-icon mx-auto" style="background:rgba(40,167,69,0.15);">
+          <i class="fas fa-star" style="color:#5dd879"></i>
+        </div>
+        <div class="fw-bold" style="color:#5dd879">Rate & Review</div>
+        <small class="text-muted">Share your thoughts on any movie</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card fade-in-up" style="animation-delay:.3s">
+        <div class="stat-icon mx-auto" style="background:rgba(220,53,69,0.15);">
+          <i class="fas fa-fire" style="color:#ff6b7a"></i>
+        </div>
+        <div class="fw-bold" style="color:#ff6b7a">Trending</div>
+        <small class="text-muted">See what everyone is watching</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRENDING MOVIES -->
+{% if trending %}
+<div class="container mb-5">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h2 class="fw-bold mb-0">
+      <i class="fas fa-fire text-gold me-2"></i>Trending Now
+    </h2>
+    <a href="{% url 'trending_movies' %}" class="btn btn-outline-gold btn-sm">
+      View All <i class="fas fa-arrow-right ms-1"></i>
+    </a>
+  </div>
+
+  <div class="row g-4">
+    {% for movie in trending %}
+    <div class="col-xl-2 col-lg-3 col-md-4 col-6">
+      <div class="card movie-card h-100">
+        <div class="movie-poster-wrapper">
+          <img src="{{ movie.get_poster_url }}"
+               class="card-img-top"
+               alt="{{ movie.title }}"
+               loading="lazy"
+               onerror="this.src='https://placehold.co/300x450/1a1a2e/f5c518?text={{ movie.title|urlencode }}'">
+        </div>
+        <div class="card-body p-2">
+          <div class="card-title mb-1" style="font-size:.9rem;">{{ movie.title }}</div>
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="badge-genre">{{ movie.genre }}</span>
+            <small class="text-gold"><i class="fas fa-star"></i> {{ movie.average_rating }}</small>
+          </div>
+        </div>
+        <div class="card-footer p-2 border-0 bg-transparent">
+          <a href="{% url 'movie_detail' movie.pk %}" class="btn btn-gold btn-sm w-100">
+            View
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- CTA -->
+<div class="container mb-5">
+  <div class="card text-center py-5" style="background:linear-gradient(135deg,var(--bg-card),var(--bg-card-hover));">
+    <div class="card-body">
+      <h3 class="fw-bold text-gold mb-3"><i class="fas fa-rocket me-2"></i>Ready to get started?</h3>
+      <p class="text-muted mb-4">Create a free account to rate movies, get personalised recommendations, and more.</p>
+      <a href="{% url 'register' %}" class="btn btn-gold btn-lg px-5">
+        <i class="fas fa-user-plus me-2"></i>Create Account
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

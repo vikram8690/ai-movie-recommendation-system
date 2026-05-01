@@ -6,7 +6,7 @@
   <h1 class="fw-bold mb-0">
     <i class="fas fa-film text-gold me-2"></i>Movies
   </h1>
-  {% if user.is_superuser or user.userprofile.role == 'admin' %}
+  {% if is_admin %}
   <a href="{% url 'movie_add' %}" class="btn btn-gold">
     <i class="fas fa-plus me-1"></i>Add Movie
   </a>

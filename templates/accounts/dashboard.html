@@ -9,7 +9,7 @@
     </h1>
     <small class="text-muted">Welcome back, {{ user.get_full_name|default:user.username }}!</small>
   </div>
-  {% if user.is_superuser or user.userprofile.role == 'admin' %}
+  {% if is_admin %}
   <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-gold btn-sm">
     <i class="fas fa-cog me-1"></i>Admin Panel
   </a>
